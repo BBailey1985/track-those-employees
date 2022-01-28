@@ -13,7 +13,7 @@ const db = mysql.createConnection(
 
 db.connect(err => {
   if (err) throw err;
-  console.log("Connected to the office database");
+  console.log("Connected to the office staff database \n");
   promptUser();
 });
 
@@ -54,6 +54,24 @@ const promptUser = () => {
   })
 };
 
-viewDepartments =() => {
-  
+viewDepartments = () => {
+  console.log('Viewing all departments \n');
+  const sql = `SELECT department.id AS Id, department.name AS Department FROM department;`
+
+    db.query(sql, (err, rows) => {
+      if (err) throw err;
+      console.table(rows);
+      promptUser();
+    })
+};
+
+viewRoles = () => {
+  console.log('Viewing all roles \n');
+  const sql = `SELECT department.id AS Id, department.name AS Department FROM department;`
+
+    db.query(sql, (err, rows) => {
+      if (err) throw err;
+      console.table(rows);
+      promptUser();
+    })
 }
