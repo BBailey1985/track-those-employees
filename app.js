@@ -15,7 +15,9 @@ db.connect((err) => {
   if (err) throw err;
   console.log("Connected to the office staff database \n");
   promptUser();
+});
 
+//initial prompt for user
 const promptUser = () => {
   inquirer
     .prompt([
@@ -62,6 +64,7 @@ const promptUser = () => {
     });
 };
 
+//view all departments
 viewDepartments = () => {
   console.log("Viewing all departments \n");
   const sql = `SELECT department.id AS Id, department.name AS department FROM department;`;
@@ -73,6 +76,7 @@ viewDepartments = () => {
   });
 };
 
+//view all roles
 viewRoles = () => {
   console.log("Viewing all roles \n");
   const sql = `SELECT role.id, role.title, role.salary, department.name as department FROM
@@ -85,6 +89,7 @@ viewRoles = () => {
   });
 };
 
+//view all employees
 viewEmployees = () => {
   console.log("Viewing all Employees \n");
   const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department,
@@ -100,6 +105,7 @@ viewEmployees = () => {
   });
 };
 
+//add department
 addDepartment = () => {
   inquirer
     .prompt([
@@ -130,6 +136,7 @@ addDepartment = () => {
     });
 };
 
+//add a role
 addRole = () => {
   inquirer
     .prompt([
@@ -196,6 +203,7 @@ addRole = () => {
     });
 };
 
+// add an employee
 addEmployee = () => {
   inquirer
     .prompt([
@@ -232,7 +240,10 @@ addEmployee = () => {
 
       db.query(roleSql, (err, data) => {
         if (err) throw err;
-        const roles = data.map(({ id, title }) => ({ name: title, value: id }));
+        const roles = data.map(({ id, title }) => ({
+          name: title,
+          value: id,
+        }));
 
         inquirer
           .prompt([
@@ -280,4 +291,63 @@ addEmployee = () => {
           });
       });
     });
+};
+
+//update employee role
+updateRole = () => {
+  const employeeSql = `SELECT * FROM employee`;
+
+  db.query(employeeSql, (err, data) => {
+    if (err) throw err;
+
+    const employees = data.map(({ id, first_name, last_name}) => ({ name: first_name + ' ' + last_name, value: id }));
+
+    inquirer.prompt([
+      {
+        type: 'list',
+        name: 'name',
+        message: 'Which employee would you like to update?',
+        choices: employees
+      }
+    ])
+    .then (empChoice => {
+      const employee = empChoice.name;
+      const params = [];
+      params.push(employee);
+
+      const roleSql = `SELECT * FROM role`;
+
+      db.query(roleSql, (err, data) => {
+        if (err) throw err;
+
+        const roles = data.map(({ id, title }) => ({ name: title, value: id }));
+
+        inquirer.prompt([
+          {
+            type: 'list',
+            name: 'role',
+            message: "What is the employee's new role?",
+            choices: roles
+          }
+        ])
+        .then (roleChoice => {
+          const role = roleChoice.role;
+          params.push(role);
+
+          let employee = params[0]
+          params[0] = role
+          params[1] = employee
+
+          const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+
+          db.query(sql, params, (err, result) => {
+            if (err) throw err;
+            console.log("Employee has been updated!");
+
+            viewEmployees();
+          });
+        });
+      });
+    });
+  });
 };
