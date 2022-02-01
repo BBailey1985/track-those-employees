@@ -33,6 +33,7 @@ const promptUser = () => {
           "Add a Role",
           "Add an Employee",
           "Update an Employee Role",
+          "Exit"
         ],
       },
     ])
@@ -59,6 +60,8 @@ const promptUser = () => {
           break;
         case "Update an Employee Role":
           updateRole();
+          break;
+        case "Exit":
           break;
       }
     });
